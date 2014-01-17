@@ -42,3 +42,21 @@ minBy = foldl1 . cmp
 
 cmp :: Ord b => (a -> b) -> a -> a -> a
 cmp f u v = if f u <= f v then u else v
+
+mincostTree :: [Int] -> Tree
+mincostTree = foldr1 Fork . map snd . foldrn insert (return . leaf)
+
+insert :: Int -> [(Int, Tree)] -> [(Int, Tree)]
+insert x ts = leaf x : split x ts
+
+split :: Int -> [(Int, Tree)] -> [(Int, Tree)]
+split _ [t]      = [t]
+split x (u:v:ts) = if x `max` fst u < fst v
+    then u:v:ts
+    else split x (fork u v : ts)
+
+leaf :: Int -> (Int, Tree)
+leaf x = (x, Leaf x)
+
+fork :: (Int, Tree) -> (Int, Tree) -> (Int, Tree)
+fork (a, u) (b, v) = (1 + a `max` b, Fork u v)
